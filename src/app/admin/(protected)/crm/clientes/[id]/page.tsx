@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { decryptPII, encryptPII, last4 } from "@/lib/pii";
 import { savePublicUpload } from "@/lib/upload";
 import { LoyaltyProgramForm } from "@/components/loyalty-program-form";
+import { RelationshipForm } from "@/components/relationship-form";
 
 const relationshipTypes = [
   "SPOUSE",
@@ -792,23 +793,14 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
       {section === "relaciones" && (
       <section id="relationships" className="rounded-xl border border-zinc-200 bg-white p-5">
         <h2 className="text-lg font-semibold">Relaciones</h2>
-        <form action={addRelationship} className="mt-3 grid gap-3 md:grid-cols-3">
-          <Field label="Tipo de relación">
-            <select name="relationType" className="w-full rounded-md border border-zinc-300 px-3 py-2">
-              {relationshipTypes.map((option) => (
-                <option key={option} value={option}>{labelForRelationship(option)}</option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Cliente relacionado">
-            <select name="relatedClientId" className="w-full rounded-md border border-zinc-300 px-3 py-2">
-              {allClients.map((entry) => (
-                <option key={entry.id} value={entry.id}>{entry.firstName} {entry.lastName}</option>
-              ))}
-            </select>
-          </Field>
-          <button className="self-end rounded-md border border-zinc-300 px-3 py-2">Agregar relación</button>
-        </form>
+        <RelationshipForm
+          action={addRelationship}
+          relationshipOptions={relationshipTypes.map((option) => ({
+            value: option,
+            label: labelForRelationship(option),
+          }))}
+          allClients={allClients}
+        />
 
         <div className="mt-3 space-y-2">
           {client.relationships.map((entry) => (
