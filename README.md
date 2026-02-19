@@ -74,15 +74,7 @@ npm run dev
 
 Abrir: http://localhost:3000
 
-## Credenciales iniciales admin
 
-- Email: `admin@agencia.com`
-- Password: `Admin12345!`
-
-Para cambiar la contraseña inicial de seed:
-
-```bash
-SEED_ADMIN_PASSWORD="TuPasswordSegura" npm run db:seed
 ```
 
 ## Estructura principal
