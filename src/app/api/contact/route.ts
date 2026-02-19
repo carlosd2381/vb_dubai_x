@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { sendContactLeadNotification } from "@/lib/notifications";
 
 export async function POST(request: Request) {
   try {
@@ -47,6 +48,23 @@ export async function POST(request: Request) {
         note: body.additionalComments || "Solicitud recibida desde formulario web",
       },
     });
+
+    try {
+      await sendContactLeadNotification({
+        firstName: body.firstName,
+        lastName: body.lastName,
+        email: body.email,
+        phone: body.phone,
+        destination: body.destination,
+        travelDate: body.travelDate,
+        travelersInfo: body.travelersInfo,
+        serviceTypes: body.serviceTypes,
+        preferences: body.preferences,
+        additionalComments: body.additionalComments,
+      });
+    } catch (error) {
+      console.error("contact email notification failed", error);
+    }
 
     return NextResponse.json({ ok: true });
   } catch {

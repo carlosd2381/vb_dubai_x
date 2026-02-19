@@ -43,7 +43,14 @@ JWT_SECRET="<SECRET>"
 SUPABASE_URL="https://<project-ref>.supabase.co"
 SUPABASE_SERVICE_ROLE_KEY="<SUPABASE_SERVICE_ROLE_KEY>"
 SUPABASE_STORAGE_BUCKET="uploads"
+RESEND_API_KEY="<RESEND_API_KEY>"
+CONTACT_NOTIFY_TO="agencia@tu-dominio.com"
+CONTACT_NOTIFY_FROM="onboarding@resend.dev"
 ```
+
+Notas de email de leads:
+- `RESEND_API_KEY` + `CONTACT_NOTIFY_TO` activan el envío de notificación por email al recibir un contacto.
+- Si faltan esas variables, el contacto igual se guarda en CRM (sin romper el formulario).
 
 1) Instalar dependencias
 
