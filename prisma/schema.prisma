@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Advisor {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model HeroSection {
+  id         String   @id @default(cuid())
+  titleEs    String
+  titleEn    String
+  subtitleEs String
+  subtitleEn String
+  mediaUrl   String?
+  mediaType  String?
+  updatedAt  DateTime @updatedAt
+}
+
+model Special {
+  id            String   @id @default(cuid())
+  titleEs       String
+  titleEn       String
+  descriptionEs String
+  descriptionEn String
+  price         String
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
+
+model Tour {
+  id           String   @id @default(cuid())
+  name         String
+  shortDescription String?
+  summary      String
+  includes     String?
+  excludes     String?
+  highlights   String?
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  deletedAt    DateTime?
+  continent    String
+  country      String
+  city         String
+  durationDays Int
+  price        String
+  cardImageUrl String?
+  bannerImageUrl String?
+  photoUrl     String?
+  videoUrl     String?
+  createdAt    DateTime @default(now())
+  galleryImages TourGalleryImage[]
+}
+
+model TourGalleryImage {
+  id        String   @id @default(cuid())
+  tourId    String
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  clientName String
+  quoteEs    String
+  quoteEn    String
+  rating     Int
+  createdAt  DateTime @default(now())
+}
+
+model Client {
+  id                 String             @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String
+  phone              String?
+  destination        String?
+  travelDate         DateTime?
+  travelersInfo      String?
+  serviceTypes       String?
+  preferences        String?
+  additionalComments String?
+  preferredContact   String?
+  desiredServices    String?
+  travelStart        DateTime?
+  travelEnd          DateTime?
+  message            String?
+  source             String             @default("website")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  communicationLogs  CommunicationLog[]
+  tasks              Task[]
+}
+
+model CommunicationLog {
+  id        String   @id @default(cuid())
+  clientId  String
+  note      String
+  channel   String   @default("manual")
+  createdAt DateTime @default(now())
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  clientId  String
+  title     String
+  status    String   @default("pendiente")
+  dueDate   DateTime?
+  createdAt DateTime @default(now())
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}

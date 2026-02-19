@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VB Travel Advisor · Website + CRM
 
-## Getting Started
+Sitio web para agencia de viajes con promociones, tours y panel admin con CRM básico.
 
-First, run the development server:
+## Funcionalidades implementadas
+
+- Sitio público bilingüe (español por defecto + cambio a inglés)
+- UX simple con navegación directa y formularios claros
+- Login seguro para asesores (sesión HTTP-only)
+- Gestión admin de contenido:
+	- Hero section (texto + imagen/video)
+	- Tour upload (datos + foto + video opcional)
+	- Client review upload
+- CRM de clientes:
+	- Alta automática desde formulario de contacto
+	- Alta manual desde admin
+	- Datos de contacto, servicios deseados, fechas de viaje
+	- Historial de comunicación
+	- Tareas por cliente
+
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind
+- Prisma + SQLite
+- Autenticación con JWT firmado (`jose`) + cookies seguras
+
+## Configuración local
+
+### Variables de entorno
+
+Para SQLite local (legacy):
+
+```bash
+DATABASE_URL="file:./dev.db"
+```
+
+Para Postgres/Supabase (staging/production):
+
+```bash
+DATABASE_URL="<SUPABASE_POOLER_URL>"
+DIRECT_URL="<SUPABASE_DIRECT_URL>"
+JWT_SECRET="<SECRET>"
+```
+
+1) Instalar dependencias
+
+```bash
+npm install
+```
+
+2) Migrar base de datos
+
+```bash
+npm run db:migrate -- --name init
+```
+
+Si estás iniciando en Supabase desde este repo (primera vez en Postgres), usa:
+
+```bash
+npm run db:push
+```
+
+3) Cargar datos iniciales
+
+```bash
+npm run db:seed
+```
+
+4) Ejecutar entorno local
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir: http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Credenciales iniciales admin
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Email: `admin@agencia.com`
+- Password: `Admin12345!`
 
-## Learn More
+Para cambiar la contraseña inicial de seed:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+SEED_ADMIN_PASSWORD="TuPasswordSegura" npm run db:seed
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estructura principal
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Público: `/`, `/destinations`, `/tours`, `/contact`
+- Admin: `/admin`, `/admin/site`, `/admin/crm/clientes`
 
-## Deploy on Vercel
+## Staging y aprobación de agencia
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Guía recomendada para compartir preview, recolectar feedback y pasar a producción:
+	- [docs/staging-approval-checklist.md](docs/staging-approval-checklist.md)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Próximos módulos (roadmap)
+
+- Itinerary & Proposal Builder
+- Invoicing & Commission Tracking
+- Full Email Integration
+- AI integration
