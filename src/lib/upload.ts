@@ -5,14 +5,30 @@ function normalizeName(fileName: string) {
   return fileName.toLowerCase().replace(/[^a-z0-9.-]/g, "-");
 }
 
-async function saveToSupabaseStorage(file: File) {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const bucket = process.env.SUPABASE_STORAGE_BUCKET || "uploads";
+function getSupabaseUploadConfig() {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET || process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || "uploads";
 
   if (!supabaseUrl || !supabaseServiceRoleKey) {
     return null;
   }
+
+  return {
+    supabaseUrl,
+    supabaseServiceRoleKey,
+    bucket,
+  };
+}
+
+async function saveToSupabaseStorage(file: File) {
+  const config = getSupabaseUploadConfig();
+
+  if (!config) {
+    return null;
+  }
+
+  const { supabaseUrl, supabaseServiceRoleKey, bucket } = config;
 
   const fileName = `${Date.now()}-${normalizeName(file.name || "media")}`;
   const objectPath = `public/${fileName}`;
@@ -43,8 +59,10 @@ export async function savePublicUpload(file: File) {
     return supabaseUrl;
   }
 
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("File upload storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL === "1") {
+    throw new Error(
+      "File upload storage is not configured. Set SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY.",
+    );
   }
 
   const bytes = await file.arrayBuffer();
