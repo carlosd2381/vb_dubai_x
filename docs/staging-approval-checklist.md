@@ -59,7 +59,11 @@ Data safety rules:
 - Connect repo to Vercel.
 - Configure environment variables in Vercel (Staging):
   - `DATABASE_URL`
+  - `DIRECT_URL`
   - `JWT_SECRET`
+  - `SUPABASE_URL`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `SUPABASE_STORAGE_BUCKET` (example: `uploads`)
   - `NODE_ENV=production`
 - Run migrations against staging DB:
   - `npx prisma migrate deploy`

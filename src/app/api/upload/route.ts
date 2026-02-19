@@ -1,11 +1,6 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-
-function normalizeName(fileName: string) {
-  return fileName.toLowerCase().replace(/[^a-z0-9.-]/g, "-");
-}
+import { savePublicUpload } from "@/lib/upload";
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -21,14 +16,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Archivo requerido" }, { status: 400 });
   }
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(uploadDir, { recursive: true });
-
-  const fileName = `${Date.now()}-${normalizeName(file.name || "media")}`;
-  const target = path.join(uploadDir, fileName);
-  await fs.writeFile(target, buffer);
-
-  return NextResponse.json({ url: `/uploads/${fileName}` });
+  try {
+    const url = await savePublicUpload(file);
+    return NextResponse.json({ url });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "No se pudo subir el archivo",
+        details: error instanceof Error ? error.message : "Unknown upload error",
+      },
+      { status: 500 },
+    );
+  }
 }

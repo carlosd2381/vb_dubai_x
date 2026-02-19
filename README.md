@@ -40,6 +40,9 @@ Para Postgres/Supabase (staging/production):
 DATABASE_URL="<SUPABASE_POOLER_URL>"
 DIRECT_URL="<SUPABASE_DIRECT_URL>"
 JWT_SECRET="<SECRET>"
+SUPABASE_URL="https://<project-ref>.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="<SUPABASE_SERVICE_ROLE_KEY>"
+SUPABASE_STORAGE_BUCKET="uploads"
 ```
 
 1) Instalar dependencias

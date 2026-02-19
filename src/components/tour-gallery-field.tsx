@@ -17,6 +17,7 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [cardUrl, setCardUrl] = useState<string>(() => {
     if (defaultCardUrl && defaultUrls.includes(defaultCardUrl)) {
       return defaultCardUrl;
@@ -85,6 +86,7 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
     formData.append("file", file);
 
     setUploading(true);
+    setUploadError(null);
 
     try {
       const response = await fetch("/api/upload", {
@@ -93,6 +95,8 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
       });
 
       if (!response.ok) {
+        const errorData = (await response.json()) as { error?: string; details?: string };
+        setUploadError(errorData.details || errorData.error || (isEn ? "Upload failed." : "La subida falló."));
         return;
       }
 
@@ -150,6 +154,10 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
           />
         </label>
       </div>
+
+      {uploadError && (
+        <p className="text-xs text-red-600">{uploadError}</p>
+      )}
 
       {urls.length === 0 ? (
         <p className="text-xs text-zinc-500">{isEn ? "No cover or gallery images yet." : "Aún no hay imágenes de portada o galería."}</p>
