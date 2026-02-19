@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { requireRole } from "@/lib/auth";
 import { createReviewAction, createTourAction, updateHeroAction } from "./actions";
 import { AdminStatusToast } from "@/components/admin-status-toast";
 import { AdminToursTable } from "@/components/admin-tours-table";
@@ -13,10 +14,10 @@ type Props = {
 const SHORT_DESCRIPTION_MAX = 160;
 
 export default async function AdminSitePage({ searchParams }: Props) {
+  await requireRole(["DEVELOPER", "MANAGEMENT"]);
   const params = await searchParams;
-  const langRaw = params.lang;
-  const adminLang = (Array.isArray(langRaw) ? langRaw[0] : langRaw) === "en" ? "en" : "es";
-  const isEn = adminLang === "en";
+  const adminLang = "es" as const;
+  const isEn = false;
   const adminSiteHref = (query: Record<string, string | undefined>) => {
     const urlParams = new URLSearchParams();
 
@@ -25,10 +26,6 @@ export default async function AdminSitePage({ searchParams }: Props) {
         urlParams.set(key, value);
       }
     });
-
-    if (adminLang === "en") {
-      urlParams.set("lang", "en");
-    }
 
     return `/admin/site?${urlParams.toString()}`;
   };
@@ -125,18 +122,18 @@ export default async function AdminSitePage({ searchParams }: Props) {
     { key: "reviews", label: "Carga de reseñas", shortLabel: "Reseñas" },
   ] as const;
 
-  const statusMessages: Record<string, { es: string; en: string }> = {
-    "hero-saved": { es: "Hero guardado correctamente.", en: "Hero saved successfully." },
-    "tour-saved": { es: "Tour guardado correctamente.", en: "Tour saved successfully." },
-    "tour-updated": { es: "Tour actualizado correctamente.", en: "Tour updated successfully." },
-    "tour-archived": { es: "Tour archivado.", en: "Tour archived." },
-    "tour-restored": { es: "Tour restaurado.", en: "Tour restored." },
-    "tour-status-updated": { es: "Estado del tour actualizado.", en: "Tour status updated." },
-    "tour-reordered": { es: "Orden de tours actualizado.", en: "Tours order updated." },
-    "review-saved": { es: "Reseña guardada correctamente.", en: "Review saved successfully." },
-    error: { es: "No se pudo guardar. Inténtalo nuevamente.", en: "Could not save. Please try again." },
+  const statusMessages: Record<string, string> = {
+    "hero-saved": "Sección principal guardada correctamente.",
+    "tour-saved": "Tour guardado correctamente.",
+    "tour-updated": "Tour actualizado correctamente.",
+    "tour-archived": "Tour archivado.",
+    "tour-restored": "Tour restaurado.",
+    "tour-status-updated": "Estado del tour actualizado.",
+    "tour-reordered": "Orden de tours actualizado.",
+    "review-saved": "Reseña guardada correctamente.",
+    error: "No se pudo guardar. Inténtalo nuevamente.",
   };
-  const toastMessage = status ? statusMessages[status]?.[adminLang] : undefined;
+  const toastMessage = status ? statusMessages[status] : undefined;
 
   return (
     <div className="space-y-6">
@@ -145,7 +142,7 @@ export default async function AdminSitePage({ searchParams }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold">Modificación del sitio</h1>
-            <p className="mt-1 text-sm text-zinc-600">Carga hero, tours y reseñas para el sitio público.</p>
+            <p className="mt-1 text-sm text-zinc-600">Configura portada, tours y reseñas para el sitio público.</p>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -175,7 +172,7 @@ export default async function AdminSitePage({ searchParams }: Props) {
               <p className="mt-1 text-sm text-zinc-600">Configura el contenido principal del home.</p>
             </div>
             <Link href={adminSiteHref({ tab: "hero", showForm: "1" })} className="rounded-md bg-sky-600 px-4 py-2 text-sm text-white hover:bg-sky-700">
-              + Agregar hero
+              + Agregar portada
             </Link>
           </div>
 
@@ -205,7 +202,7 @@ export default async function AdminSitePage({ searchParams }: Props) {
                   </tr>
                 ) : (
                   <tr>
-                    <td className="py-3 text-zinc-600" colSpan={5}>No hay hero cargado todavía.</td>
+                    <td className="py-3 text-zinc-600" colSpan={5}>No hay portada cargada todavía.</td>
                   </tr>
                 )}
               </tbody>
@@ -216,53 +213,53 @@ export default async function AdminSitePage({ searchParams }: Props) {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
               <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-zinc-200 bg-white p-5">
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">{isEn ? "Hero form" : "Formulario de hero"}</h3>
+                  <h3 className="text-lg font-semibold">Formulario de portada</h3>
                   <Link href={adminSiteHref({ tab: "hero" })} className="rounded-md border border-zinc-300 px-3 py-1 text-sm text-zinc-700 hover:bg-zinc-50">
-                    {isEn ? "Close" : "Cerrar"}
+                    Cerrar
                   </Link>
                 </div>
                 <form action={updateHeroAction} className="grid gap-3 md:grid-cols-2">
                   <input type="hidden" name="redirectLang" value={adminLang} />
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Title ES *" : "Título ES *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Título ES *</label>
                     <input name="titleEs" defaultValue={hero?.titleEs || ""} placeholder="Título ES" minLength={3} title="Completa el título en español (mínimo 3 caracteres)" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">Título EN *</label>
-                    <input name="titleEn" defaultValue={hero?.titleEn || ""} placeholder="Title EN" minLength={3} title="Complete the English title (minimum 3 characters)" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Título en inglés *</label>
+                    <input name="titleEn" defaultValue={hero?.titleEn || ""} placeholder="Título en inglés" minLength={3} title="Completa el título en inglés (mínimo 3 caracteres)" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-zinc-700">Subtítulo ES *</label>
                     <input name="subtitleEs" defaultValue={hero?.subtitleEs || ""} placeholder="Subtítulo ES" minLength={8} title="Completa el subtítulo en español (mínimo 8 caracteres)" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">Subtitle EN *</label>
-                    <input name="subtitleEn" defaultValue={hero?.subtitleEn || ""} placeholder="Subtitle EN" minLength={8} title="Complete the English subtitle (minimum 8 characters)" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Subtítulo en inglés *</label>
+                    <input name="subtitleEn" defaultValue={hero?.subtitleEn || ""} placeholder="Subtítulo en inglés" minLength={8} title="Completa el subtítulo en inglés (mínimo 8 caracteres)" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Media URL" : "URL media"}</label>
-                    <input name="mediaUrl" defaultValue={hero?.mediaUrl || ""} placeholder="URL media (opcional)" className="w-full rounded-md border border-zinc-300 px-3 py-2" />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Optional. If you upload a file, it replaces this URL." : "Opcional. Si subes archivo, reemplaza esta URL."}</p>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">URL del medio</label>
+                    <input name="mediaUrl" defaultValue={hero?.mediaUrl || ""} placeholder="URL del medio (opcional)" className="w-full rounded-md border border-zinc-300 px-3 py-2" />
+                    <p className="mt-1 text-xs text-zinc-500">Opcional. Si subes archivo, reemplaza esta URL.</p>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Media file" : "Archivo media"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Archivo multimedia</label>
                     <input type="file" name="media" accept="image/*,video/*" className="w-full rounded-md border border-zinc-300 px-3 py-2" />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Optional. Allowed formats: image or video." : "Opcional. Formatos permitidos: imagen o video."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Opcional. Formatos permitidos: imagen o video.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Media type *" : "Tipo de media *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Tipo de medio *</label>
                     <select name="mediaType" defaultValue={hero?.mediaType || "image"} className="w-full rounded-md border border-zinc-300 px-3 py-2" required>
-                      <option value="image">Image</option>
+                      <option value="image">Imagen</option>
                       <option value="video">Video</option>
                     </select>
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div className="flex items-end">
-                    <button className="rounded-md bg-sky-600 px-4 py-2 text-white hover:bg-sky-700 md:w-fit">{isEn ? "Save hero" : "Guardar hero"}</button>
+                    <button className="rounded-md bg-sky-600 px-4 py-2 text-white hover:bg-sky-700 md:w-fit">Guardar portada</button>
                   </div>
                 </form>
               </div>
@@ -275,51 +272,50 @@ export default async function AdminSitePage({ searchParams }: Props) {
         <section className="rounded-xl border border-zinc-200 bg-white p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold">{isEn ? "Tour management" : "Carga de tours"}</h2>
-              <p className="mt-1 text-sm text-zinc-600">{isEn ? "Manage tours and publication status." : "Administra tours, estado de publicación y orden."}</p>
+              <h2 className="text-lg font-semibold">Carga de tours</h2>
+              <p className="mt-1 text-sm text-zinc-600">Administra tours, estado de publicación y orden.</p>
             </div>
             <Link href={adminTourHref({ showForm: "1" })} className="rounded-md bg-sky-600 px-4 py-2 text-sm text-white hover:bg-sky-700">
-              {isEn ? "+ Add tour" : "+ Agregar tour"}
+              + Agregar tour
             </Link>
           </div>
 
           <form method="GET" action="/admin/site" className="mt-4 grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 md:grid-cols-4">
             <input type="hidden" name="tab" value="tours" />
-            {adminLang === "en" && <input type="hidden" name="lang" value="en" />}
             <input
               name="q"
               defaultValue={query}
-              placeholder={isEn ? "Search by name, city, country" : "Buscar por nombre, ciudad, país"}
+              placeholder="Buscar por nombre, ciudad, país"
               className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm md:col-span-2"
             />
             <select name="country" defaultValue={countryFilter} className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm">
-              <option value="">{isEn ? "All countries" : "Todos los países"}</option>
+              <option value="">Todos los países</option>
               {countries.map((country) => (
                 <option key={country.country} value={country.country}>{country.country}</option>
               ))}
             </select>
             <select name="tourStatus" defaultValue={tourStatus} className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm">
-              <option value="all">{isEn ? "All statuses" : "Todos los estados"}</option>
-              <option value="active">{isEn ? "Active" : "Activos"}</option>
-              <option value="draft">{isEn ? "Draft" : "Borradores"}</option>
-              <option value="archived">{isEn ? "Archived" : "Archivados"}</option>
+              <option value="all">Todos los estados</option>
+              <option value="active">Activos</option>
+              <option value="draft">Borradores</option>
+              <option value="archived">Archivados</option>
             </select>
             <div className="md:col-span-4 flex gap-2">
-              <button className="rounded-md bg-sky-600 px-3 py-2 text-sm text-white hover:bg-sky-700">{isEn ? "Apply filters" : "Aplicar filtros"}</button>
+              <button className="rounded-md bg-sky-600 px-3 py-2 text-sm text-white hover:bg-sky-700">Aplicar filtros</button>
               <Link href={adminSiteHref({ tab: "tours" })} className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100">
-                {isEn ? "Clear" : "Limpiar"}
+                Limpiar
               </Link>
             </div>
           </form>
 
           <div className="mt-8">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-base font-semibold">{isEn ? "Tours" : "Tours existentes"}</h3>
+              <h3 className="text-base font-semibold">Tours existentes</h3>
               <p className="text-sm text-zinc-500">{tours.length} registros</p>
             </div>
 
             {tours.length === 0 ? (
-              <p className="rounded-md border border-dashed border-zinc-300 px-3 py-4 text-sm text-zinc-600">{isEn ? "No tours found for current filters." : "No hay tours para los filtros actuales."}</p>
+              <p className="rounded-md border border-dashed border-zinc-300 px-3 py-4 text-sm text-zinc-600">No hay tours para los filtros actuales.</p>
             ) : (
               <AdminToursTable
                 tours={tours}
@@ -338,9 +334,9 @@ export default async function AdminSitePage({ searchParams }: Props) {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
               <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-zinc-200 bg-white p-5">
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">{selectedTour ? (isEn ? "Edit tour" : "Editar tour") : (isEn ? "New tour" : "Nuevo tour")}</h3>
+                  <h3 className="text-lg font-semibold">{selectedTour ? "Editar tour" : "Nuevo tour"}</h3>
                   <Link href={adminTourHref({})} className="rounded-md border border-zinc-300 px-3 py-1 text-sm text-zinc-700 hover:bg-zinc-50">
-                    {isEn ? "Close" : "Cerrar"}
+                    Cerrar
                   </Link>
                 </div>
                 <form action={createTourAction} className="grid gap-3 md:grid-cols-2">
@@ -350,63 +346,63 @@ export default async function AdminSitePage({ searchParams }: Props) {
                   <input type="hidden" name="redirectCountry" value={countryFilter} />
                   <input type="hidden" name="redirectTourStatus" value={tourStatus} />
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Tour name *" : "Nombre del tour *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Nombre del tour *</label>
                     <input name="name" defaultValue={selectedTour?.name || ""} placeholder="Nombre del tour" minLength={3} title="Ingresa un nombre de tour (mínimo 3 caracteres)" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Price *" : "Precio *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Precio *</label>
                     <input name="price" defaultValue={selectedTour?.price || ""} placeholder="Precio" minLength={1} title="Ingresa el precio del tour" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <TourShortDescriptionField defaultValue={selectedTour?.shortDescription || ""} maxLength={SHORT_DESCRIPTION_MAX} lang={adminLang} />
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Continent *" : "Continente *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Continente *</label>
                     <input name="continent" defaultValue={selectedTour?.continent || ""} placeholder="Continente" minLength={2} title="Ingresa el continente" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Country *" : "País *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">País *</label>
                     <input name="country" defaultValue={selectedTour?.country || ""} placeholder="País" minLength={2} title="Ingresa el país" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "City *" : "Ciudad *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Ciudad *</label>
                     <input name="city" defaultValue={selectedTour?.city || ""} placeholder="Ciudad" minLength={2} title="Ingresa la ciudad" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Duration (days) *" : "Duración (días) *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Duración (días) *</label>
                     <input type="number" name="durationDays" min={1} defaultValue={selectedTour?.durationDays || 5} title="Ingresa una duración mayor o igual a 1" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field. Minimum 1 day." : "Campo obligatorio. Mínimo 1 día."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio. Mínimo 1 día.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Publication" : "Publicación"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Publicación</label>
                     <label className="flex items-center gap-2 rounded-md border border-zinc-300 px-3 py-2">
                       <input type="checkbox" name="isActive" defaultChecked={selectedTour?.isActive ?? true} />
-                      <span className="text-sm text-zinc-700">{isEn ? "Active (visible on public site)" : "Activo (visible en sitio público)"}</span>
+                      <span className="text-sm text-zinc-700">Activo (visible en sitio público)</span>
                     </label>
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "If disabled, this tour remains as draft." : "Si se desactiva, queda como borrador."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Si se desactiva, queda como borrador.</p>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Full description *" : "Descripción completa *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Descripción completa *</label>
                     <textarea name="summary" defaultValue={selectedTour?.summary || ""} placeholder="Descripción completa" minLength={20} title="Ingresa una descripción completa (mínimo 20 caracteres)" className="min-h-24 w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field. Minimum 20 characters." : "Campo obligatorio. Mínimo 20 caracteres."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio. Mínimo 20 caracteres.</p>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "What's included" : "Qué incluye"}</label>
-                    <textarea name="includes" defaultValue={selectedTour?.includes || ""} placeholder={isEn ? "One item per line" : "Un ítem por línea"} className="min-h-20 w-full rounded-md border border-zinc-300 px-3 py-2" />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Optional. Use one line per included item." : "Opcional. Usa una línea por cada ítem incluido."}</p>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Qué incluye</label>
+                    <textarea name="includes" defaultValue={selectedTour?.includes || ""} placeholder="Un ítem por línea" className="min-h-20 w-full rounded-md border border-zinc-300 px-3 py-2" />
+                    <p className="mt-1 text-xs text-zinc-500">Opcional. Usa una línea por cada ítem incluido.</p>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "What's not included" : "Qué no incluye"}</label>
-                    <textarea name="excludes" defaultValue={selectedTour?.excludes || ""} placeholder={isEn ? "One item per line" : "Un ítem por línea"} className="min-h-20 w-full rounded-md border border-zinc-300 px-3 py-2" />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Optional. Use one line per excluded item." : "Opcional. Usa una línea por cada ítem no incluido."}</p>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Qué no incluye</label>
+                    <textarea name="excludes" defaultValue={selectedTour?.excludes || ""} placeholder="Un ítem por línea" className="min-h-20 w-full rounded-md border border-zinc-300 px-3 py-2" />
+                    <p className="mt-1 text-xs text-zinc-500">Opcional. Usa una línea por cada ítem no incluido.</p>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Highlights" : "Destacados"}</label>
-                    <textarea name="highlights" defaultValue={selectedTour?.highlights || ""} placeholder={isEn ? "One highlight per line" : "Un destacado por línea"} className="min-h-20 w-full rounded-md border border-zinc-300 px-3 py-2" />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Optional. Main places or activities." : "Opcional. Principales lugares o actividades."}</p>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Destacados</label>
+                    <textarea name="highlights" defaultValue={selectedTour?.highlights || ""} placeholder="Un destacado por línea" className="min-h-20 w-full rounded-md border border-zinc-300 px-3 py-2" />
+                    <p className="mt-1 text-xs text-zinc-500">Opcional. Principales lugares o actividades.</p>
                   </div>
                   <TourGalleryField
                     defaultUrls={selectedTourImageUrls}
@@ -415,13 +411,13 @@ export default async function AdminSitePage({ searchParams }: Props) {
                     lang={adminLang}
                   />
                   <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Video URL" : "URL video"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">URL video</label>
                     <input name="videoUrl" defaultValue={selectedTour?.videoUrl || ""} placeholder="URL video (opcional)" className="w-full rounded-md border border-zinc-300 px-3 py-2" />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Optional." : "Opcional."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Opcional.</p>
                   </div>
                   <div className="md:col-span-2">
                     <button className="rounded-md bg-sky-600 px-4 py-2 text-white hover:bg-sky-700 md:w-fit">
-                      {selectedTour ? (isEn ? "Update tour" : "Actualizar tour") : (isEn ? "Save tour" : "Guardar tour")}
+                      {selectedTour ? "Actualizar tour" : "Guardar tour"}
                     </button>
                   </div>
                 </form>
@@ -448,7 +444,7 @@ export default async function AdminSitePage({ searchParams }: Props) {
               <thead>
                 <tr className="border-b border-zinc-200 text-zinc-600">
                   <th className="py-2">Cliente</th>
-                  <th className="py-2">Rating</th>
+                  <th className="py-2">Calificación</th>
                   <th className="py-2">Reseña ES</th>
                   <th className="py-2">Fecha</th>
                 </tr>
@@ -475,35 +471,35 @@ export default async function AdminSitePage({ searchParams }: Props) {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
               <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-zinc-200 bg-white p-5">
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">{isEn ? "New review" : "Nueva reseña"}</h3>
+                  <h3 className="text-lg font-semibold">Nueva reseña</h3>
                   <Link href={adminSiteHref({ tab: "reviews" })} className="rounded-md border border-zinc-300 px-3 py-1 text-sm text-zinc-700 hover:bg-zinc-50">
-                    {isEn ? "Close" : "Cerrar"}
+                    Cerrar
                   </Link>
                 </div>
                 <form action={createReviewAction} className="grid gap-3 md:grid-cols-2">
                   <input type="hidden" name="redirectLang" value={adminLang} />
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Client *" : "Cliente *"}</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Cliente *</label>
                     <input name="clientName" placeholder="Cliente" minLength={2} title="Ingresa el nombre del cliente" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">Rating *</label>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Calificación *</label>
                     <input type="number" name="rating" min={1} max={5} defaultValue={5} title="Ingresa un valor entre 1 y 5" className="w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field. Between 1 and 5." : "Campo obligatorio. Entre 1 y 5."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio. Entre 1 y 5.</p>
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-zinc-700">Reseña ES *</label>
                     <textarea name="quoteEs" placeholder="Reseña ES" minLength={8} title="Ingresa la reseña en español (mínimo 8 caracteres)" className="min-h-24 w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-zinc-700">Review EN *</label>
-                    <textarea name="quoteEn" placeholder="Review EN" minLength={8} title="Enter the English review (minimum 8 characters)" className="min-h-24 w-full rounded-md border border-zinc-300 px-3 py-2" required />
-                    <p className="mt-1 text-xs text-zinc-500">{isEn ? "Required field." : "Campo obligatorio."}</p>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">Reseña en inglés *</label>
+                    <textarea name="quoteEn" placeholder="Reseña en inglés" minLength={8} title="Ingresa la reseña en inglés (mínimo 8 caracteres)" className="min-h-24 w-full rounded-md border border-zinc-300 px-3 py-2" required />
+                    <p className="mt-1 text-xs text-zinc-500">Campo obligatorio.</p>
                   </div>
                   <div className="md:col-span-2">
-                    <button className="rounded-md bg-sky-600 px-4 py-2 text-white hover:bg-sky-700 md:w-fit">{isEn ? "Save review" : "Guardar reseña"}</button>
+                    <button className="rounded-md bg-sky-600 px-4 py-2 text-white hover:bg-sky-700 md:w-fit">Guardar reseña</button>
                   </div>
                 </form>
               </div>

@@ -1,11 +1,14 @@
 import bcrypt from "bcryptjs";
+import type { AdvisorRole } from "@prisma/client";
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
 
 type SessionPayload = {
   advisorId: string;
   email: string;
+  role: AdvisorRole;
 };
 
 const COOKIE_NAME = "advisor_session";
@@ -45,7 +48,27 @@ export async function getSession() {
     return null;
   }
 
-  return verifySessionToken(token);
+  const session = await verifySessionToken(token);
+
+  if (!session) {
+    return null;
+  }
+
+  if (!session.role) {
+    const advisor = await db.advisor.findUnique({ where: { id: session.advisorId } });
+
+    if (!advisor) {
+      return null;
+    }
+
+    return {
+      advisorId: advisor.id,
+      email: advisor.email,
+      role: advisor.role,
+    };
+  }
+
+  return session;
 }
 
 export async function requireAdvisor() {
@@ -53,6 +76,16 @@ export async function requireAdvisor() {
 
   if (!session) {
     redirect("/admin/login");
+  }
+
+  return session;
+}
+
+export async function requireRole(roles: AdvisorRole[]) {
+  const session = await requireAdvisor();
+
+  if (!roles.includes(session.role)) {
+    redirect("/admin");
   }
 
   return session;

@@ -2,6 +2,27 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sendContactLeadNotification } from "@/lib/notifications";
 
+function buildWebsiteLeadNote(body: {
+  destination?: string;
+  travelDate?: string;
+  travelersInfo?: string;
+  serviceTypes?: string[];
+  preferences?: string;
+  additionalComments?: string;
+}) {
+  const lines = [
+    "Solicitud recibida desde formulario web",
+    `Destino: ${body.destination?.trim() || "-"}`,
+    `Fecha de viaje: ${body.travelDate?.trim() || "-"}`,
+    `Viajeros: ${body.travelersInfo?.trim() || "-"}`,
+    `Tipos de servicio: ${body.serviceTypes?.length ? body.serviceTypes.join(", ") : "-"}`,
+    `Preferencias generales: ${body.preferences?.trim() || "-"}`,
+    `Comentarios adicionales: ${body.additionalComments?.trim() || "-"}`,
+  ];
+
+  return lines.join("\n");
+}
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
@@ -45,7 +66,7 @@ export async function POST(request: Request) {
       data: {
         clientId: client.id,
         channel: "website",
-        note: body.additionalComments || "Solicitud recibida desde formulario web",
+        note: buildWebsiteLeadNote(body),
       },
     });
 

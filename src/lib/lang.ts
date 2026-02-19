@@ -6,23 +6,15 @@ type SearchParamsInput =
   | undefined;
 
 export async function getLang(searchParams: SearchParamsInput): Promise<Lang> {
-  if (!searchParams) {
-    return "es";
-  }
-
-  const params = searchParams instanceof Promise ? await searchParams : searchParams;
-  const value = params.lang;
-  const raw = Array.isArray(value) ? value[0] : value;
-
-  return raw === "en" ? "en" : "es";
+  void searchParams;
+  return "es";
 }
 
 export function withLang(path: string, lang: Lang) {
   return `${path}?lang=${lang}`;
 }
 
-export const dictionary = {
-  es: {
+const spanishDictionary = {
     nav: {
       home: "Inicio",
       destinations: "Destinos",
@@ -61,45 +53,9 @@ export const dictionary = {
       loginButton: "Iniciar sesión",
     },
     footer: "Agencia de Viajes · Atención personalizada",
-  },
-  en: {
-    nav: {
-      home: "Home",
-      destinations: "Destinations",
-      tours: "Tours",
-      contact: "Contact",
-      admin: "Admin",
-      language: "Language",
-    },
-    home: {
-      specials: "Specials",
-      tours: "Featured tours",
-      testimonials: "Testimonials",
-      faq: "Frequently asked questions",
-      cta: "Request advice",
-    },
-    destinations: {
-      title: "Destinations by continent",
-      subtitle: "Explore top-requested continents, countries and cities.",
-    },
-    tours: {
-      title: "Pre-built tours",
-      subtitle: "Ready-made programs to customize for each client.",
-    },
-    contact: {
-      title: "Contact us",
-      subtitle: "Share your details and an advisor will contact you.",
-      sent: "Thank you. Your request was received.",
-      send: "Send",
-    },
-    admin: {
-      dashboard: "Admin dashboard",
-      site: "Site management",
-      crm: "Client CRM",
-      logout: "Sign out",
-      loginTitle: "Advisor sign in",
-      loginButton: "Sign in",
-    },
-    footer: "Travel Agency · Personalized service",
-  },
+};
+
+export const dictionary = {
+  es: spanishDictionary,
+  en: spanishDictionary,
 };

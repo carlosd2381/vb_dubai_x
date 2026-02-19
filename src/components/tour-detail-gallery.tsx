@@ -10,7 +10,7 @@ type Props = {
 
 export function TourDetailGallery({ images, lang }: Props) {
   const [index, setIndex] = useState(0);
-  const isEn = lang === "en";
+  void lang;
 
   if (!images.length) {
     return null;
@@ -21,7 +21,7 @@ export function TourDetailGallery({ images, lang }: Props) {
   return (
     <section className="mt-8 rounded-xl border border-slate-200 bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">{isEn ? "Photo gallery" : "Galería de fotos"}</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Galería de fotos</h2>
         <p className="text-sm text-slate-500">
           {index + 1}/{images.length}
         </p>
@@ -39,14 +39,14 @@ export function TourDetailGallery({ images, lang }: Props) {
               className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
               onClick={() => setIndex((current) => (current - 1 + images.length) % images.length)}
             >
-              {isEn ? "Previous" : "Anterior"}
+              Anterior
             </button>
             <button
               type="button"
               className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
               onClick={() => setIndex((current) => (current + 1) % images.length)}
             >
-              {isEn ? "Next" : "Siguiente"}
+              Siguiente
             </button>
           </div>
 

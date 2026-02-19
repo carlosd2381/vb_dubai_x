@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { type Lang, withLang } from "@/lib/lang";
+import { type Lang } from "@/lib/lang";
 
 type Props = {
   lang: Lang;
@@ -7,14 +6,10 @@ type Props = {
 };
 
 export function LanguageSwitcher({ lang, path }: Props) {
-  const nextLang = lang === "es" ? "en" : "es";
+  void lang;
+  void path;
 
   return (
-    <Link
-      href={withLang(path, nextLang)}
-      className="rounded-md border border-zinc-300 px-3 py-1 text-sm hover:border-amber-400 hover:bg-amber-50"
-    >
-      {lang === "es" ? "EN" : "ES"}
-    </Link>
+    <span className="rounded-md border border-zinc-300 px-3 py-1 text-sm text-zinc-700">ES</span>
   );
 }

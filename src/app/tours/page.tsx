@@ -39,12 +39,12 @@ export default async function ToursPage({ searchParams }: Props) {
               <h2 className="text-lg font-semibold text-slate-900">{tour.name}</h2>
               <p className="mt-1 text-sm text-slate-600">{tour.shortDescription || tour.summary}</p>
               <p className="mt-3 text-xs text-slate-500">{tour.continent} · {tour.country} · {tour.city}</p>
-              <p className="text-xs text-slate-500">{tour.durationDays} {lang === "es" ? "días" : "days"}</p>
+              <p className="text-xs text-slate-500">{tour.durationDays} días</p>
               <div className="mt-3 flex items-center justify-between">
                 <p className="font-semibold text-sky-700">{tour.price}</p>
                 {tour.videoUrl && (
                   <span className="inline-block text-sm text-sky-700">
-                    {lang === "es" ? "Video disponible" : "Video available"}
+                    Video disponible
                   </span>
                 )}
               </div>

@@ -11,7 +11,7 @@ type Props = {
 };
 
 export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBannerUrl, lang = "es" }: Props) {
-  const isEn = lang === "en";
+  void lang;
   const [urls, setUrls] = useState<string[]>(defaultUrls);
   const [urlInput, setUrlInput] = useState("");
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
@@ -96,7 +96,7 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
 
       if (!response.ok) {
         const errorData = (await response.json()) as { error?: string; details?: string };
-        setUploadError(errorData.details || errorData.error || (isEn ? "Upload failed." : "La subida falló."));
+        setUploadError(errorData.details || errorData.error || "La subida falló.");
         return;
       }
 
@@ -116,11 +116,9 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
       <input type="hidden" name="bannerImageUrl" value={bannerUrl} />
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-zinc-700">{isEn ? "Cover + Gallery images" : "Portada + galería de imágenes"}</label>
+        <label className="mb-1 block text-sm font-medium text-zinc-700">Portada + galería de imágenes</label>
         <p className="text-xs text-zinc-500">
-          {isEn
-            ? "Use one image list for all types. Select one image for the tour card (1:1), one for the detail banner (16:9), and keep the rest for the gallery."
-            : "Usa una sola lista de imágenes. Selecciona una para la tarjeta del tour (1:1), una para el banner del detalle (16:9) y deja las demás para la galería."}
+          Usa una sola lista de imágenes. Selecciona una para la tarjeta del tour (1:1), una para el banner del detalle (16:9) y deja las demás para la galería.
         </p>
       </div>
 
@@ -128,7 +126,7 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
         <input
           value={urlInput}
           onChange={(event) => setUrlInput(event.target.value)}
-          placeholder={isEn ? "Cover or gallery image URL" : "URL de imagen de portada o galería"}
+          placeholder="URL de imagen de portada o galería"
           className="min-w-55 flex-1 rounded-md border border-zinc-300 px-3 py-2"
         />
         <button
@@ -136,10 +134,10 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
           onClick={() => addUrl(urlInput)}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
         >
-          {isEn ? "Add image URL" : "Agregar URL de imagen"}
+          Agregar URL de imagen
         </button>
         <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50">
-          {uploading ? (isEn ? "Uploading..." : "Subiendo...") : (isEn ? "Upload image file" : "Subir archivo de imagen")}
+          {uploading ? "Subiendo..." : "Subir archivo de imagen"}
           <input
             type="file"
             accept="image/*"
@@ -160,7 +158,7 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
       )}
 
       {urls.length === 0 ? (
-        <p className="text-xs text-zinc-500">{isEn ? "No cover or gallery images yet." : "Aún no hay imágenes de portada o galería."}</p>
+        <p className="text-xs text-zinc-500">Aún no hay imágenes de portada o galería.</p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {urls.map((url, index) => (
@@ -189,7 +187,7 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
               <div className="mb-2 flex items-center justify-between text-xs text-zinc-500">
                 <span className="cursor-grab">⋮⋮ {index + 1}</span>
                 <button type="button" className="text-red-600 hover:text-red-700" onClick={() => removeAt(index)}>
-                  {isEn ? "Remove" : "Quitar"}
+                  Quitar
                 </button>
               </div>
               <div className="relative aspect-square w-full overflow-hidden rounded border border-zinc-100 bg-zinc-50">
@@ -205,7 +203,7 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
                       : "border-zinc-300 text-zinc-700 hover:bg-zinc-50"
                   }`}
                 >
-                  {cardUrl === url ? (isEn ? "Card selected" : "Tarjeta seleccionada") : (isEn ? "Set as card" : "Usar como tarjeta")}
+                  {cardUrl === url ? "Tarjeta seleccionada" : "Usar como tarjeta"}
                 </button>
                 <button
                   type="button"
@@ -216,7 +214,7 @@ export function TourGalleryField({ defaultUrls = [], defaultCardUrl, defaultBann
                       : "border-zinc-300 text-zinc-700 hover:bg-zinc-50"
                   }`}
                 >
-                  {bannerUrl === url ? (isEn ? "Banner selected" : "Banner seleccionado") : (isEn ? "Set as banner" : "Usar como banner")}
+                  {bannerUrl === url ? "Banner seleccionado" : "Usar como banner"}
                 </button>
               </div>
             </div>

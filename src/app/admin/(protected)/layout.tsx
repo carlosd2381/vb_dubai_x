@@ -23,8 +23,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
           <nav className="flex items-center gap-4 text-sm">
             <Link href="/admin">Dashboard</Link>
-            <Link href="/admin/site">Sitio</Link>
+            {session.role !== "AGENT" && <Link href="/admin/site">Sitio</Link>}
             <Link href="/admin/crm/clientes">CRM</Link>
+            {session.role !== "AGENT" && <Link href="/admin/users">Usuarios</Link>}
             <form action={logoutAction}>
               <button className="rounded-md border border-zinc-300 px-3 py-1">Cerrar sesión</button>
             </form>

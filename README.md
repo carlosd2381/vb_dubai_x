@@ -46,6 +46,13 @@ SUPABASE_STORAGE_BUCKET="uploads"
 RESEND_API_KEY="<RESEND_API_KEY>"
 CONTACT_NOTIFY_TO="agencia@tu-dominio.com"
 CONTACT_NOTIFY_FROM="onboarding@resend.dev"
+PII_ENCRYPTION_KEY="<BASE64_32_BYTE_KEY>"
+```
+
+Generar `PII_ENCRYPTION_KEY` (ejemplo):
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
 Notas de email de leads:

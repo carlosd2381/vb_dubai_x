@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
     }
 
-    const token = await createSessionToken({ advisorId: advisor.id, email: advisor.email });
+    const token = await createSessionToken({ advisorId: advisor.id, email: advisor.email, role: advisor.role });
     const response = NextResponse.json({ ok: true });
 
     response.cookies.set({

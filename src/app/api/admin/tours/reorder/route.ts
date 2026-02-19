@@ -10,6 +10,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (session.role === "AGENT") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   try {
     const body = (await request.json()) as { movedId?: string; targetId?: string };
     const movedId = String(body.movedId || "").trim();

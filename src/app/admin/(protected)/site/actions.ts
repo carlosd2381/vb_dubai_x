@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { savePublicUpload } from "@/lib/upload";
 
@@ -55,6 +56,7 @@ async function syncTourGalleryImages(tourId: string, galleryUrls: string[]) {
 }
 
 export async function updateHeroAction(formData: FormData) {
+  await requireRole(["DEVELOPER", "MANAGEMENT"]);
   let statusValue: "hero-saved" | "error" = "hero-saved";
 
   const lang = String(formData.get("redirectLang") || "").trim();
@@ -101,6 +103,7 @@ export async function updateHeroAction(formData: FormData) {
 }
 
 export async function createTourAction(formData: FormData) {
+  await requireRole(["DEVELOPER", "MANAGEMENT"]);
   let statusValue: "tour-saved" | "tour-updated" | "error" = "tour-saved";
   let currentTourId = "";
 
@@ -195,6 +198,7 @@ export async function createTourAction(formData: FormData) {
 }
 
 export async function createReviewAction(formData: FormData) {
+  await requireRole(["DEVELOPER", "MANAGEMENT"]);
   let statusValue: "review-saved" | "error" = "review-saved";
 
   const lang = String(formData.get("redirectLang") || "").trim();

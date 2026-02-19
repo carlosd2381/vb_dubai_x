@@ -10,11 +10,12 @@ async function main() {
 
   await prisma.advisor.upsert({
     where: { email: "admin@agencia.com" },
-    update: { name: "Administrador", passwordHash },
+    update: { name: "Administrador", passwordHash, role: "DEVELOPER" },
     create: {
       name: "Administrador",
       email: "admin@agencia.com",
       passwordHash,
+      role: "DEVELOPER",
     },
   });
 

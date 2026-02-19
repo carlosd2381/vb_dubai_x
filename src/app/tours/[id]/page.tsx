@@ -53,7 +53,7 @@ export default async function TourDetailPage({ params, searchParams }: Props) {
     <PublicShell lang={lang} path="/tours">
       <div className="mb-4">
         <Link href={withLang("/tours", lang)} className="text-sm text-sky-700 underline hover:text-amber-600">
-          {lang === "es" ? "← Volver a tours" : "← Back to tours"}
+          ← Volver a tours
         </Link>
       </div>
 
@@ -71,19 +71,19 @@ export default async function TourDetailPage({ params, searchParams }: Props) {
               <p className="mt-2 text-sm text-slate-500">{tour.continent} · {tour.country} · {tour.city}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-slate-500">{tour.durationDays} {lang === "es" ? "días" : "days"}</p>
+              <p className="text-sm text-slate-500">{tour.durationDays} días</p>
               <p className="text-xl font-semibold text-sky-700">{tour.price}</p>
             </div>
           </div>
 
           <section className="mt-6">
-            <h2 className="text-lg font-semibold text-slate-900">{lang === "es" ? "Descripción" : "Description"}</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Descripción</h2>
             <p className="mt-2 whitespace-pre-line text-slate-700">{tour.summary}</p>
           </section>
 
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <h3 className="font-semibold text-slate-900">{lang === "es" ? "Qué incluye" : "What's included"}</h3>
+              <h3 className="font-semibold text-slate-900">Qué incluye</h3>
               {includes.length > 0 ? (
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
                   {includes.map((item) => (
@@ -91,12 +91,12 @@ export default async function TourDetailPage({ params, searchParams }: Props) {
                   ))}
                 </ul>
               ) : (
-                <p className="mt-2 text-sm text-slate-500">{lang === "es" ? "Información no disponible." : "Information not available."}</p>
+                <p className="mt-2 text-sm text-slate-500">Información no disponible.</p>
               )}
             </section>
 
             <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <h3 className="font-semibold text-slate-900">{lang === "es" ? "Qué no incluye" : "What's not included"}</h3>
+              <h3 className="font-semibold text-slate-900">Qué no incluye</h3>
               {excludes.length > 0 ? (
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
                   {excludes.map((item) => (
@@ -104,12 +104,12 @@ export default async function TourDetailPage({ params, searchParams }: Props) {
                   ))}
                 </ul>
               ) : (
-                <p className="mt-2 text-sm text-slate-500">{lang === "es" ? "Información no disponible." : "Information not available."}</p>
+                <p className="mt-2 text-sm text-slate-500">Información no disponible.</p>
               )}
             </section>
 
             <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <h3 className="font-semibold text-slate-900">{lang === "es" ? "Destacados" : "Highlights"}</h3>
+              <h3 className="font-semibold text-slate-900">Destacados</h3>
               {highlights.length > 0 ? (
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
                   {highlights.map((item) => (
@@ -117,7 +117,7 @@ export default async function TourDetailPage({ params, searchParams }: Props) {
                   ))}
                 </ul>
               ) : (
-                <p className="mt-2 text-sm text-slate-500">{lang === "es" ? "Información no disponible." : "Information not available."}</p>
+                <p className="mt-2 text-sm text-slate-500">Información no disponible.</p>
               )}
             </section>
           </div>
@@ -127,7 +127,7 @@ export default async function TourDetailPage({ params, searchParams }: Props) {
           {tour.videoUrl && (
             <div className="mt-6">
               <a href={tour.videoUrl} target="_blank" rel="noreferrer" className="inline-block rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700">
-                {lang === "es" ? "Ver video del tour" : "Watch tour video"}
+                Ver video del tour
               </a>
             </div>
           )}

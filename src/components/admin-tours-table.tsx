@@ -32,8 +32,6 @@ export function AdminToursTable({
   tours,
   selectedTourId,
   deleteConfirmId,
-  isEn,
-  adminLang,
   query,
   countryFilter,
   tourStatus,
@@ -56,9 +54,8 @@ export function AdminToursTable({
       q: query || undefined,
       country: countryFilter || undefined,
       tourStatus: tourStatus || undefined,
-      lang: adminLang === "en" ? "en" : undefined,
     }),
-    [adminLang, countryFilter, query, tourStatus],
+    [countryFilter, query, tourStatus],
   );
 
   const adminTourHref = (extra: Record<string, string | undefined>) => {
@@ -105,13 +102,13 @@ export function AdminToursTable({
 
       if (!response.ok) {
         setRows(previous);
-        setMessage({ kind: "error", text: isEn ? "Could not reorder tours." : "No se pudo reordenar." });
+        setMessage({ kind: "error", text: "No se pudo reordenar." });
         return;
       }
-      setMessage({ kind: "ok", text: isEn ? "Order updated." : "Orden actualizado." });
+      setMessage({ kind: "ok", text: "Orden actualizado." });
     } catch {
       setRows(previous);
-      setMessage({ kind: "error", text: isEn ? "Could not reorder tours." : "No se pudo reordenar." });
+      setMessage({ kind: "error", text: "No se pudo reordenar." });
     } finally {
       setDraggingId(null);
       setDropTargetId(null);
@@ -146,20 +143,20 @@ export function AdminToursTable({
 
       if (!response.ok) {
         setRows(previous);
-        setMessage({ kind: "error", text: isEn ? "Could not update tour." : "No se pudo actualizar el tour." });
+        setMessage({ kind: "error", text: "No se pudo actualizar el tour." });
         return;
       }
 
       const successText =
         successStatus === "tour-archived"
-          ? (isEn ? "Tour archived." : "Tour archivado.")
+          ? "Tour archivado."
           : successStatus === "tour-restored"
-            ? (isEn ? "Tour restored." : "Tour restaurado.")
-            : (isEn ? "Tour status updated." : "Estado actualizado.");
+            ? "Tour restaurado."
+            : "Estado actualizado.";
       setMessage({ kind: "ok", text: successText });
     } catch {
       setRows(previous);
-      setMessage({ kind: "error", text: isEn ? "Could not update tour." : "No se pudo actualizar el tour." });
+      setMessage({ kind: "error", text: "No se pudo actualizar el tour." });
     } finally {
       setPendingIds((current) => current.filter((id) => id !== payload.tourId));
     }
@@ -176,13 +173,13 @@ export function AdminToursTable({
       <table className="min-w-full divide-y divide-zinc-200 text-sm">
         <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500">
           <tr>
-            <th className="px-3 py-2">{isEn ? "Order" : "Orden"}</th>
-            <th className="px-3 py-2">{isEn ? "Tour" : "Tour"}</th>
-            <th className="px-3 py-2">{isEn ? "Location" : "Ubicación"}</th>
-            <th className="px-3 py-2">{isEn ? "Duration" : "Duración"}</th>
-            <th className="px-3 py-2">{isEn ? "Price" : "Precio"}</th>
-            <th className="px-3 py-2">{isEn ? "Status" : "Estado"}</th>
-            <th className="px-3 py-2 text-right">{isEn ? "Actions" : "Acciones"}</th>
+            <th className="px-3 py-2">Orden</th>
+            <th className="px-3 py-2">Tour</th>
+            <th className="px-3 py-2">Ubicación</th>
+            <th className="px-3 py-2">Duración</th>
+            <th className="px-3 py-2">Precio</th>
+            <th className="px-3 py-2">Estado</th>
+            <th className="px-3 py-2 text-right">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-100 bg-white">
@@ -229,11 +226,11 @@ export function AdminToursTable({
                   <p className="text-xs text-zinc-500">{tour.shortDescription || tour.summary}</p>
                 </td>
                 <td className="px-3 py-2 text-zinc-700">{tour.continent} · {tour.country} · {tour.city}</td>
-                <td className="px-3 py-2 text-zinc-700">{tour.durationDays} {isEn ? "days" : "días"}</td>
+                <td className="px-3 py-2 text-zinc-700">{tour.durationDays} días</td>
                 <td className="px-3 py-2 text-zinc-700">{tour.price}</td>
                 <td className="px-3 py-2">
                   <span className={`rounded-full px-2 py-0.5 text-xs ${isArchived ? "bg-zinc-200 text-zinc-700" : tour.isActive ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
-                    {isArchived ? (isEn ? "Archived" : "Archivado") : tour.isActive ? (isEn ? "Active" : "Activo") : (isEn ? "Draft" : "Borrador")}
+                    {isArchived ? "Archivado" : tour.isActive ? "Activo" : "Borrador"}
                   </span>
                 </td>
                 <td className="px-3 py-2">
@@ -242,7 +239,7 @@ export function AdminToursTable({
                       href={adminTourHref({ edit: tour.id })}
                       className="rounded-md border border-zinc-300 px-2 py-1 text-xs text-zinc-700 hover:border-sky-400 hover:bg-sky-50"
                     >
-                      {isEn ? "Edit" : "Editar"}
+                      Editar
                     </Link>
 
                     {!isArchived ? (
@@ -253,7 +250,7 @@ export function AdminToursTable({
                         onClick={() => updateTourState({ action: "toggleActive", tourId: tour.id, isActive: !tour.isActive }, "tour-status-updated")}
                       >
                           {isPending && <span className="mr-1 inline-block h-3 w-3 animate-spin rounded-full border border-zinc-500 border-t-transparent align-[-2px]" aria-label="loading" />}
-                          {tour.isActive ? (isEn ? "Set draft" : "Pasar a borrador") : (isEn ? "Publish" : "Publicar")}
+                          {tour.isActive ? "Pasar a borrador" : "Publicar"}
                       </button>
                     ) : (
                       <button
@@ -263,7 +260,7 @@ export function AdminToursTable({
                         onClick={() => updateTourState({ action: "restore", tourId: tour.id }, "tour-restored")}
                       >
                           {isPending && <span className="mr-1 inline-block h-3 w-3 animate-spin rounded-full border border-emerald-500 border-t-transparent align-[-2px]" aria-label="loading" />}
-                          {isEn ? "Restore" : "Restaurar"}
+                          Restaurar
                       </button>
                     )}
 
@@ -277,10 +274,10 @@ export function AdminToursTable({
                             onClick={() => updateTourState({ action: "archive", tourId: tour.id }, "tour-archived")}
                           >
                             {isPending && <span className="mr-1 inline-block h-3 w-3 animate-spin rounded-full border border-red-500 border-t-transparent align-[-2px]" aria-label="loading" />}
-                            {isEn ? "Confirm archive" : "Confirmar archivo"}
+                            Confirmar archivo
                           </button>
                           <Link href={adminTourHref({ edit: selectedTourId })} className="rounded-md border border-zinc-300 px-2 py-1 text-xs text-zinc-700 hover:bg-zinc-50">
-                            {isEn ? "Cancel" : "Cancelar"}
+                            Cancelar
                           </Link>
                         </>
                       ) : (
@@ -288,7 +285,7 @@ export function AdminToursTable({
                           href={adminTourHref({ delete: tour.id, edit: selectedTourId })}
                           className="rounded-md border border-zinc-300 px-2 py-1 text-xs text-zinc-700 hover:border-red-400 hover:bg-red-50"
                         >
-                          {isEn ? "Archive" : "Archivar"}
+                          Archivar
                         </Link>
                       ))}
                   </div>

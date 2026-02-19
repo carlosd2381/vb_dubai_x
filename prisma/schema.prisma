@@ -11,11 +11,61 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum AdvisorRole {
+  DEVELOPER
+  MANAGEMENT
+  AGENT
+}
+
+enum ContactChannelType {
+  HOME
+  CELL
+  OFFICE
+}
+
+enum EmailChannelType {
+  PERSONAL
+  OFFICE
+}
+
+enum AddressType {
+  PERSONAL
+  OFFICE
+}
+
+enum RelationshipType {
+  SPOUSE
+  CHILD
+  PARENT
+  SIBLING
+  FRIEND
+  RELATIVE
+  PARTNER
+  DOMESTIC_PARTNER
+  COWORKER
+  OTHER
+}
+
+enum LoyaltyCategory {
+  HOTEL
+  AIRLINE
+  CRUISE
+  CAR_RENTAL
+  RAIL_BUS
+}
+
+enum TravelDocumentType {
+  PASSPORT
+  VISA
+  TSA_GLOBAL_ENTRY
+}
+
 model Advisor {
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
   passwordHash String
+  role         AdvisorRole @default(AGENT)
   createdAt    DateTime @default(now())
 }
 
@@ -86,13 +136,30 @@ model Review {
 model Client {
   id                 String             @id @default(cuid())
   firstName          String
+  middleName         String?
   lastName           String
+  lastNameMaternal   String?
   email              String
   phone              String?
+  website            String?
+  jobTitle           String?
+  company            String?
+  facebookProfile    String?
+  instagramProfile   String?
+  tiktokProfile      String?
+  linkedInProfile    String?
   destination        String?
   travelDate         DateTime?
+  dateOfBirth        DateTime?
+  anniversary        DateTime?
   travelersInfo      String?
   serviceTypes       String?
+  seatPreference     String?
+  bedPreference      String?
+  mealPreference     String?
+  hotelPreferences   String?
+  vibePreferences    String?
+  activityPreferences String?
   preferences        String?
   additionalComments String?
   preferredContact   String?
@@ -103,8 +170,89 @@ model Client {
   source             String             @default("website")
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
+  contactPhones      ClientContactPhone[]
+  contactEmails      ClientContactEmail[]
+  contactAddresses   ClientContactAddress[]
+  relationships      ClientRelationship[] @relation("ClientRelationships")
+  relatedToClients   ClientRelationship[] @relation("ClientRelatedTo")
+  loyaltyPrograms    ClientLoyaltyProgram[]
+  travelDocuments    ClientTravelDocument[]
   communicationLogs  CommunicationLog[]
   tasks              Task[]
+}
+
+model ClientContactPhone {
+  id        String             @id @default(cuid())
+  clientId  String
+  type      ContactChannelType @default(CELL)
+  value     String
+  createdAt DateTime           @default(now())
+  client    Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model ClientContactEmail {
+  id        String           @id @default(cuid())
+  clientId  String
+  type      EmailChannelType @default(PERSONAL)
+  value     String
+  createdAt DateTime         @default(now())
+  client    Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model ClientContactAddress {
+  id            String      @id @default(cuid())
+  clientId      String
+  type          AddressType @default(PERSONAL)
+  addressLine1  String
+  addressLine2  String?
+  city          String?
+  stateProvince String?
+  postalCode    String?
+  country       String?
+  createdAt     DateTime    @default(now())
+  client        Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model ClientRelationship {
+  id              String           @id @default(cuid())
+  clientId        String
+  relatedClientId String
+  relationType    RelationshipType
+  createdAt       DateTime         @default(now())
+  client          Client           @relation("ClientRelationships", fields: [clientId], references: [id], onDelete: Cascade)
+  relatedClient   Client           @relation("ClientRelatedTo", fields: [relatedClientId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, relatedClientId, relationType])
+}
+
+model ClientLoyaltyProgram {
+  id               String          @id @default(cuid())
+  clientId         String
+  category         LoyaltyCategory
+  programName      String
+  membershipNumber String?
+  createdAt        DateTime        @default(now())
+  client           Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model ClientTravelDocument {
+  id                      String             @id @default(cuid())
+  clientId                String
+  type                    TravelDocumentType
+  fullName                String?
+  encryptedDocumentNumber String
+  numberLast4             String?
+  countryOfIssue          String?
+  dateOfIssue             DateTime?
+  dateOfExpiration        DateTime?
+  sex                     String?
+  placeOfBirth            String?
+  nationality             String?
+  citizenship             String?
+  photoUrl                String?
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  client                  Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 model CommunicationLog {

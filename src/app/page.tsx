@@ -34,18 +34,18 @@ export default async function Home({ searchParams }: Props) {
         <div className="absolute inset-0 bg-linear-to-r from-slate-900 via-slate-900/80 to-transparent" />
         <div className="relative max-w-2xl">
           <span className="inline-flex rounded-full bg-sky-500/20 px-3 py-1 text-xs font-medium text-sky-200">
-            {lang === "es" ? "Asesoría de viajes personalizada" : "Personalized travel advisory"}
+            Asesoría de viajes personalizada
           </span>
           <h1 className="mt-4 text-4xl font-bold leading-tight md:text-5xl">
-            {lang === "es" ? hero?.titleEs : hero?.titleEn}
+            {hero?.titleEs}
           </h1>
-          <p className="mt-4 text-slate-200">{lang === "es" ? hero?.subtitleEs : hero?.subtitleEn}</p>
+          <p className="mt-4 text-slate-200">{hero?.subtitleEs}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href={withLang("/contact", lang)} className="rounded-xl bg-sky-600 px-5 py-2.5 font-medium text-white transition hover:bg-sky-700">
               {t.cta}
             </Link>
             <Link href={withLang("/tours", lang)} className="rounded-xl border border-white/40 bg-white/10 px-5 py-2.5 font-medium text-white hover:bg-white/20">
-              {lang === "es" ? "Ver tours" : "View tours"}
+              Ver tours
             </Link>
           </div>
         </div>
@@ -53,15 +53,15 @@ export default async function Home({ searchParams }: Props) {
         <div className="relative mt-8 grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-white/15 bg-white/5 p-4">
             <p className="text-2xl font-semibold">50+</p>
-            <p className="text-xs text-slate-300">{lang === "es" ? "Destinos" : "Destinations"}</p>
+            <p className="text-xs text-slate-300">Destinos</p>
           </div>
           <div className="rounded-xl border border-white/15 bg-white/5 p-4">
             <p className="text-2xl font-semibold">200+</p>
-            <p className="text-xs text-slate-300">{lang === "es" ? "Clientes felices" : "Happy clients"}</p>
+            <p className="text-xs text-slate-300">Clientes felices</p>
           </div>
           <div className="rounded-xl border border-white/15 bg-white/5 p-4">
             <p className="text-2xl font-semibold">98%</p>
-            <p className="text-xs text-slate-300">{lang === "es" ? "Satisfacción" : "Satisfaction"}</p>
+            <p className="text-xs text-slate-300">Satisfacción</p>
           </div>
         </div>
       </section>
@@ -93,7 +93,7 @@ export default async function Home({ searchParams }: Props) {
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {reviews.map((review: { id: string; clientName: string; quoteEs: string; quoteEn: string }) => (
             <article key={review.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p className="italic text-slate-100">“{lang === "es" ? review.quoteEs : review.quoteEn}”</p>
+              <p className="italic text-slate-100">“{review.quoteEs}”</p>
               <p className="mt-3 text-sm font-medium text-sky-200">{review.clientName}</p>
             </article>
           ))}
