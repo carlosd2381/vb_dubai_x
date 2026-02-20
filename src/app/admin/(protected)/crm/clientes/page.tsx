@@ -73,10 +73,22 @@ export default async function ClientsPage({ searchParams }: Props) {
             </thead>
             <tbody>
               {clients.map((client) => (
-                <tr key={client.id} className="border-b border-zinc-100">
-                  <td className="py-2">{client.firstName} {client.lastName}</td>
-                  <td className="py-2">{client.email}</td>
-                  <td className="py-2">{client.serviceTypes || client.desiredServices || "-"}</td>
+                <tr key={client.id} className="border-b border-zinc-100 hover:bg-zinc-50">
+                  <td className="py-2">
+                    <Link href={`/admin/crm/clientes/${client.id}`} className="block w-full">
+                      {client.firstName} {client.lastName}
+                    </Link>
+                  </td>
+                  <td className="py-2">
+                    <Link href={`/admin/crm/clientes/${client.id}`} className="block w-full">
+                      {client.email}
+                    </Link>
+                  </td>
+                  <td className="py-2">
+                    <Link href={`/admin/crm/clientes/${client.id}`} className="block w-full">
+                      {client.serviceTypes || client.desiredServices || "-"}
+                    </Link>
+                  </td>
                   <td className="py-2">
                     <Link href={`/admin/crm/clientes/${client.id}`} className="text-sky-700 underline hover:text-amber-600">
                       Ver detalle

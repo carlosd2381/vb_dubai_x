@@ -49,6 +49,7 @@ const sectionOptions = [
   { key: "tareas", label: "Viajes/Tareas" },
 ] as const;
 
+type RelationshipType = (typeof relationshipTypes)[number];
 type SectionKey = (typeof sectionOptions)[number]["key"];
 
 type Props = {
@@ -73,8 +74,8 @@ function dateInput(value: Date | null | undefined) {
   return value ? value.toISOString().slice(0, 10) : "";
 }
 
-function labelForRelationship(value: (typeof relationshipTypes)[number]) {
-  const labels: Record<(typeof relationshipTypes)[number], string> = {
+function labelForRelationship(value: RelationshipType) {
+  const labels: Record<RelationshipType, string> = {
     SPOUSE: "Cónyuge",
     CHILD: "Hijo/a",
     PARENT: "Padre/Madre",
@@ -88,6 +89,18 @@ function labelForRelationship(value: (typeof relationshipTypes)[number]) {
   };
 
   return labels[value];
+}
+
+function inverseRelationshipType(value: RelationshipType): RelationshipType {
+  if (value === "CHILD") {
+    return "PARENT";
+  }
+
+  if (value === "PARENT") {
+    return "CHILD";
+  }
+
+  return value;
 }
 
 function usersHref(id: string, query: Record<string, string | undefined>) {
@@ -291,23 +304,67 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
   async function addRelationship(formData: FormData) {
     "use server";
 
-    await db.clientRelationship.create({
-      data: {
-        clientId: id,
-        relatedClientId: String(formData.get("relatedClientId") || ""),
-        relationType: String(formData.get("relationType") || "OTHER") as (typeof relationshipTypes)[number],
-      },
+    const relatedClientId = String(formData.get("relatedClientId") || "").trim();
+    const relationType = String(formData.get("relationType") || "OTHER") as RelationshipType;
+
+    if (!relatedClientId || relatedClientId === "__new__" || relatedClientId === id) {
+      redirect(usersHref(id, { section: "relaciones", status: "relationship-invalid" }));
+    }
+
+    const reverseRelationType = inverseRelationshipType(relationType);
+
+    await db.clientRelationship.createMany({
+      data: [
+        {
+          clientId: id,
+          relatedClientId,
+          relationType,
+        },
+        {
+          clientId: relatedClientId,
+          relatedClientId: id,
+          relationType: reverseRelationType,
+        },
+      ],
+      skipDuplicates: true,
     });
 
     revalidatePath(`/admin/crm/clientes/${id}`);
+    revalidatePath(`/admin/crm/clientes/${relatedClientId}`);
     redirect(usersHref(id, { status: "relationship-added" }));
   }
 
   async function removeRelationship(formData: FormData) {
     "use server";
 
-    await db.clientRelationship.delete({ where: { id: String(formData.get("relationshipId")) } });
+    const relationshipId = String(formData.get("relationshipId") || "").trim();
+    const existing = await db.clientRelationship.findUnique({ where: { id: relationshipId } });
+
+    if (!existing) {
+      redirect(usersHref(id, { status: "relationship-removed" }));
+    }
+
+    const reverseRelationType = inverseRelationshipType(existing.relationType as RelationshipType);
+
+    await db.clientRelationship.deleteMany({
+      where: {
+        OR: [
+          {
+            clientId: existing.clientId,
+            relatedClientId: existing.relatedClientId,
+            relationType: existing.relationType,
+          },
+          {
+            clientId: existing.relatedClientId,
+            relatedClientId: existing.clientId,
+            relationType: reverseRelationType,
+          },
+        ],
+      },
+    });
+
     revalidatePath(`/admin/crm/clientes/${id}`);
+    revalidatePath(`/admin/crm/clientes/${existing.relatedClientId}`);
     redirect(usersHref(id, { status: "relationship-removed" }));
   }
 
@@ -450,6 +507,7 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
     "address-removed": "Dirección eliminada.",
     "relationship-added": "Relación agregada.",
     "relationship-removed": "Relación eliminada.",
+    "relationship-invalid": "Selecciona un cliente válido para crear la relación.",
     "loyalty-added": "Programa de lealtad agregado.",
     "loyalty-removed": "Programa de lealtad eliminado.",
     "doc-added": "Documento de viaje agregado.",
